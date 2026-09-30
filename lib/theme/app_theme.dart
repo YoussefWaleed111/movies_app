@@ -10,7 +10,7 @@ class AppTheme {
       primaryColor: AppColors.primaryGold,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primaryGold,
-        secondary: AppColors.primaryGoldHover,
+        secondary: AppColors.primaryYellowHover,
         surface: AppColors.cardBackground,
         error: AppColors.errorRed,
       ),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_typography.dart';
 import '../widgets/common/non_image_placeholder.dart';
+import '../widgets/common/onboarding_card_overlay.dart';
+import '../models/onboarding_page_model.dart';
 import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_event.dart';
 
@@ -15,28 +16,78 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
-  int _currentPage = 0;
+  int _currentPageIndex = 0;
 
-  final List<Map<String, String>> _onboardingData = [
-    {
-      'title': 'Find Your Next Favorite',
-      'description': 'Explore thousands of blockbusters, indie gems, and trending movies tailored to your cinematic taste.',
-      'placeholderLabel': 'ONBOARDING HERO POSTER 1',
-    },
-    {
-      'title': 'State-Driven MVVM Architecture',
-      'description': 'Experience zero-lag browsing powered by BLoC state management and reactive data streams.',
-      'placeholderLabel': 'ONBOARDING HERO POSTER 2',
-    },
-    {
-      'title': 'Curate Your Watchlist',
-      'description': 'Save your favorite movies, track watch history, and sync across all your mobile devices effortlessly.',
-      'placeholderLabel': 'ONBOARDING HERO POSTER 3',
-    },
+  // Exact 6 Onboarding Pages matching Figma Specifications
+  final List<OnboardingPageModel> _onboardingPages = const [
+    OnboardingPageModel(
+      pageIndex: 0,
+      title: 'Find Your Next Favorite Movie Here',
+      subtitle: 'Get access to a huge library of movies to suit all tastes. You will surely like it.',
+      actionButtonText: 'Explore Now',
+      hasBackButton: false,
+      posterLabel: 'POSTER COLLAGE GRID',
+      movieTag: 'GLOBAL MOVIE LIBRARY',
+      backgroundGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0xFF1E1E28), Color(0xFF121216)],
+      ),
+    ),
+    OnboardingPageModel(
+      pageIndex: 1,
+      title: 'Discover Movies',
+      subtitle: 'Explore a vast collection of movies in all qualities and genres. Find your next favorite film with ease.',
+      actionButtonText: 'Next',
+      hasBackButton: true,
+      posterLabel: 'MARVEL / AVENGERS POSTER',
+      movieTag: 'ACTION & BLOCKBUSTERS',
+      backgroundGradient: AppColors.avengersGradient,
+    ),
+    OnboardingPageModel(
+      pageIndex: 2,
+      title: 'Explore All Genres',
+      subtitle: 'Discover movies from every genre, in all available qualities. Find something new and exciting to watch every day.',
+      actionButtonText: 'Next',
+      hasBackButton: true,
+      posterLabel: 'FIERY SCI-FI / OPPENHEIMER',
+      movieTag: 'ALL GENRES & QUALITIES',
+      backgroundGradient: AppColors.oppenheimerGradient,
+    ),
+    OnboardingPageModel(
+      pageIndex: 3,
+      title: 'Create Watchlists',
+      subtitle: 'Save movies to your watchlist to keep track of what you want to watch next. Enjoy films in various qualities and genres.',
+      actionButtonText: 'Next',
+      hasBackButton: true,
+      posterLabel: 'BAD BOYS / PURPLE LIGHTING',
+      movieTag: 'PERSONAL WATCHLISTS',
+      backgroundGradient: AppColors.badBoysGradient,
+    ),
+    OnboardingPageModel(
+      pageIndex: 4,
+      title: 'Rate, Review, and Learn',
+      subtitle: 'Share your thoughts on the movies you\'ve watched. Dive deep into film details and help others discover great movies with your reviews.',
+      actionButtonText: 'Next',
+      hasBackButton: true,
+      posterLabel: 'DOCTOR STRANGE / WANDA',
+      movieTag: 'RATINGS & COMMUNITY',
+      backgroundGradient: AppColors.doctorStrangeGradient,
+    ),
+    OnboardingPageModel(
+      pageIndex: 5,
+      title: 'Start Watching Now',
+      subtitle: 'Start watching movie details and summaries, and get ready for a seamless experience.',
+      actionButtonText: 'Finish',
+      hasBackButton: true,
+      posterLabel: '1917 DRAMATIC WAR POSTER',
+      movieTag: 'SEAMLESS EXPERIENCE',
+      backgroundGradient: AppColors.war1917Gradient,
+    ),
   ];
 
-  void _onNextPressed() {
-    if (_currentPage < _onboardingData.length - 1) {
+  void _onPrimaryPressed() {
+    if (_currentPageIndex < _onboardingPages.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -46,8 +97,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
+  void _onBackPressed() {
+    if (_currentPageIndex > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   void _navigateToAuth() {
     context.read<NavigationBloc>().add(const NavigateToRoute(AppViewRoute.login));
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -55,126 +121,87 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            children: [
-              // Top Bar with Step Count
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'STEP ${_currentPage + 1} OF ${_onboardingData.length}',
-                    style: AppTypography.labelSmall.copyWith(color: AppColors.primaryGold),
-                  ),
-                  TextButton(
-                    onPressed: _navigateToAuth,
-                    child: const Text('Skip', style: TextStyle(color: Colors.white70)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // PageView Carousel Content
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  onPageChanged: (index) {
-                    setState(() => _currentPage = index);
-                  },
-                  itemCount: _onboardingData.length,
-                  itemBuilder: (context, index) {
-                    final item = _onboardingData[index];
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Central Large Icon-Based Non-Image Placeholder
-                        NonImagePlaceholder(
-                          type: PlaceholderType.heroPoster,
-                          label: item['placeholderLabel'],
-                          width: double.infinity,
-                          height: size.height * 0.4,
-                          borderRadius: 20,
-                          accentColor: AppColors.primaryGold,
-                        ),
-                        const SizedBox(height: 32),
-
-                        // Title Text
-                        Text(
-                          item['title']!,
-                          textAlign: TextAlign.center,
-                          style: AppTypography.displayMedium,
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Description Text
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Text(
-                            item['description']!,
-                            textAlign: TextAlign.center,
-                            style: AppTypography.bodyMedium.copyWith(height: 1.5),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Page Indicator Dots
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _onboardingData.length,
-                  (index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: _currentPage == index ? 24 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: _currentPage == index ? AppColors.primaryGold : AppColors.placeholderBorder,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Vertical Stack Buttons: Yellow 'Next' / 'Get Started' and White 'Skip'
-              Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: _onNextPressed,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryGold,
-                      foregroundColor: Colors.black,
-                      minimumSize: const Size.fromHeight(52),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: Text(
-                      _currentPage == _onboardingData.length - 1 ? 'Get Started' : 'Next',
-                      style: AppTypography.button,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: _navigateToAuth,
-                    child: Text(
-                      'Skip to Login',
-                      style: AppTypography.bodyMedium.copyWith(color: Colors.white70),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+      backgroundColor: AppColors.backgroundPureBlack,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Full-Bleed Background Poster Container PageView
+          PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() => _currentPageIndex = index);
+            },
+            itemCount: _onboardingPages.length,
+            itemBuilder: (context, index) {
+              final model = _onboardingPages[index];
+              return _buildFullBleedBackgroundPoster(context, size, model);
+            },
           ),
-        ),
+
+          // Bottom Sheet Card Overlay sitting over full-screen background poster
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: OnboardingCardOverlay(
+              model: _onboardingPages[_currentPageIndex],
+              totalPages: _onboardingPages.length,
+              currentPageIndex: _currentPageIndex,
+              onPrimaryPressed: _onPrimaryPressed,
+              onBackPressed: _onBackPressed,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFullBleedBackgroundPoster(BuildContext context, Size size, OnboardingPageModel model) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        gradient: model.backgroundGradient,
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Background Graphic / Wireframe Poster Placeholder
+          Positioned(
+            top: size.height * 0.08,
+            left: 20,
+            right: 20,
+            height: size.height * 0.48,
+            child: NonImagePlaceholder(
+              type: PlaceholderType.heroPoster,
+              label: '${model.posterLabel}\n[${model.movieTag}]',
+              borderRadius: 20,
+              accentColor: AppColors.primaryYellow,
+              backgroundColor: AppColors.cardBackground.withValues(alpha: 0.8),
+            ),
+          ),
+
+          // Dark Gradient Overlay for Smooth Fade into Bottom Card Overlay
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: size.height * 0.5,
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Color(0xCC000000),
+                    Color(0xFF000000),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
