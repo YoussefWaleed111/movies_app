@@ -107,7 +107,7 @@ class HomeScreen extends StatelessWidget {
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    transform: Matrix4.identity()..scale(isCenter ? 1.0 : 0.92),
+                    transform: Matrix4.diagonal3Values(isCenter ? 1.0 : 0.92, isCenter ? 1.0 : 0.92, 1.0),
                     child: GestureDetector(
                       onTap: () {
                         context.read<NavigationBloc>().add(

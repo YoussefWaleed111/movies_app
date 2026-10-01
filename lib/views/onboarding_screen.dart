@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_colors.dart';
-import '../widgets/common/non_image_placeholder.dart';
 import '../widgets/common/onboarding_card_overlay.dart';
 import '../models/onboarding_page_model.dart';
 import '../blocs/navigation/navigation_bloc.dart';
@@ -23,73 +22,68 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     OnboardingPageModel(
       pageIndex: 0,
       title: 'Find Your Next Favorite Movie Here',
-      subtitle: 'Get access to a huge library of movies to suit all tastes. You will surely like it.',
+      subtitle:
+          'Get access to a huge library of movies to suit all tastes. You will surely like it.',
       actionButtonText: 'Explore Now',
       hasBackButton: false,
-      posterLabel: 'POSTER COLLAGE GRID',
-      movieTag: 'GLOBAL MOVIE LIBRARY',
-      backgroundGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [Color(0xFF1E1E28), Color(0xFF121216)],
-      ),
+      isCardOverlay: false,
     ),
     OnboardingPageModel(
       pageIndex: 1,
       title: 'Discover Movies',
-      subtitle: 'Explore a vast collection of movies in all qualities and genres. Find your next favorite film with ease.',
+      subtitle:
+          'Explore a vast collection of movies in all qualities and genres. Find your next favorite film with ease.',
       actionButtonText: 'Next',
-      hasBackButton: true,
-      posterLabel: 'MARVEL / AVENGERS POSTER',
-      movieTag: 'ACTION & BLOCKBUSTERS',
-      backgroundGradient: AppColors.avengersGradient,
+      hasBackButton: false,
+      isCardOverlay: true,
+      posterAsset: 'assets/images/avengers.jpg',
     ),
     OnboardingPageModel(
       pageIndex: 2,
       title: 'Explore All Genres',
-      subtitle: 'Discover movies from every genre, in all available qualities. Find something new and exciting to watch every day.',
+      subtitle:
+          'Discover movies from every genre, in all available qualities. Find something new and exciting to watch every day.',
       actionButtonText: 'Next',
       hasBackButton: true,
-      posterLabel: 'FIERY SCI-FI / OPPENHEIMER',
-      movieTag: 'ALL GENRES & QUALITIES',
-      backgroundGradient: AppColors.oppenheimerGradient,
+      isCardOverlay: true,
+      posterAsset: 'assets/images/oppenheimer.jpg',
     ),
     OnboardingPageModel(
       pageIndex: 3,
       title: 'Create Watchlists',
-      subtitle: 'Save movies to your watchlist to keep track of what you want to watch next. Enjoy films in various qualities and genres.',
+      subtitle:
+          'Save movies to your watchlist to keep track of what you want to watch next. Enjoy films in various qualities and genres.',
       actionButtonText: 'Next',
       hasBackButton: true,
-      posterLabel: 'BAD BOYS / PURPLE LIGHTING',
-      movieTag: 'PERSONAL WATCHLISTS',
-      backgroundGradient: AppColors.badBoysGradient,
+      isCardOverlay: true,
+      posterAsset: 'assets/images/bad_boys.jpg',
     ),
     OnboardingPageModel(
       pageIndex: 4,
       title: 'Rate, Review, and Learn',
-      subtitle: 'Share your thoughts on the movies you\'ve watched. Dive deep into film details and help others discover great movies with your reviews.',
+      subtitle:
+          'Share your thoughts on the movies you\'ve watched. Dive deep into film details and help others discover great movies with your reviews.',
       actionButtonText: 'Next',
       hasBackButton: true,
-      posterLabel: 'DOCTOR STRANGE / WANDA',
-      movieTag: 'RATINGS & COMMUNITY',
-      backgroundGradient: AppColors.doctorStrangeGradient,
+      isCardOverlay: true,
+      posterAsset: 'assets/images/doctor_strange.jpg',
     ),
     OnboardingPageModel(
       pageIndex: 5,
       title: 'Start Watching Now',
-      subtitle: 'Start watching movie details and summaries, and get ready for a seamless experience.',
+      subtitle:
+          'Start watching movie details and summaries, and get ready for a seamless experience.',
       actionButtonText: 'Finish',
       hasBackButton: true,
-      posterLabel: '1917 DRAMATIC WAR POSTER',
-      movieTag: 'SEAMLESS EXPERIENCE',
-      backgroundGradient: AppColors.war1917Gradient,
+      isCardOverlay: true,
+      posterAsset: 'assets/images/war_1917.jpg',
     ),
   ];
 
   void _onPrimaryPressed() {
     if (_currentPageIndex < _onboardingPages.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 320),
         curve: Curves.easeInOut,
       );
     } else {
@@ -100,7 +94,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _onBackPressed() {
     if (_currentPageIndex > 0) {
       _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 320),
         curve: Curves.easeInOut,
       );
     }
@@ -118,14 +112,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final currentModel = _onboardingPages[_currentPageIndex];
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundPureBlack,
+      backgroundColor: AppColors.figmaBackground,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Full-Bleed Background Poster Container PageView
+          // Full Screen PageView (Background Posters)
           PageView.builder(
             controller: _pageController,
             onPageChanged: (index) {
@@ -134,19 +128,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             itemCount: _onboardingPages.length,
             itemBuilder: (context, index) {
               final model = _onboardingPages[index];
-              return _buildFullBleedBackgroundPoster(context, size, model);
+              if (index == 0) {
+                return _buildCollageBackground(context);
+              }
+              return _buildSinglePosterBackground(context, model);
             },
           ),
 
-          // Bottom Sheet Card Overlay sitting over full-screen background poster
+          // Bottom Content / Card Overlay
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: OnboardingCardOverlay(
-              model: _onboardingPages[_currentPageIndex],
-              totalPages: _onboardingPages.length,
-              currentPageIndex: _currentPageIndex,
+              model: currentModel,
               onPrimaryPressed: _onPrimaryPressed,
               onBackPressed: _onBackPressed,
             ),
@@ -156,53 +151,194 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildFullBleedBackgroundPoster(BuildContext context, Size size, OnboardingPageModel model) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        gradient: model.backgroundGradient,
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Background Graphic / Wireframe Poster Placeholder
-          Positioned(
-            top: size.height * 0.08,
-            left: 20,
-            right: 20,
-            height: size.height * 0.48,
-            child: NonImagePlaceholder(
-              type: PlaceholderType.heroPoster,
-              label: '${model.posterLabel}\n[${model.movieTag}]',
-              borderRadius: 20,
-              accentColor: AppColors.primaryYellow,
-              backgroundColor: AppColors.cardBackground.withValues(alpha: 0.8),
-            ),
-          ),
+  /// Screen 1 Background: 3D Tilted Movie Poster Collage Grid
+  Widget _buildCollageBackground(BuildContext context) {
+    final size = MediaQuery.of(context).size;
 
-          // Dark Gradient Overlay for Smooth Fade into Bottom Card Overlay
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: size.height * 0.5,
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Color(0xCC000000),
-                    Color(0xFF000000),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Dark background base
+        Container(color: AppColors.figmaBackground),
+
+        // Tilted Poster Grid
+        Positioned(
+          top: -size.height * 0.10,
+          left: -size.width * 0.35,
+          right: -size.width * 0.35,
+          bottom: 0,
+          child: ClipRect(
+            child: OverflowBox(
+              alignment: Alignment.topCenter,
+              minWidth: 0,
+              maxWidth: double.infinity,
+              minHeight: 0,
+              maxHeight: double.infinity,
+              child: Transform.rotate(
+                angle: -0.16,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Column 1
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 20),
+                        _buildCollagePoster('assets/images/cars.jpg'),
+                        const SizedBox(height: 14),
+                        _buildCollagePoster('assets/images/oppenheimer.jpg'),
+                        const SizedBox(height: 14),
+                        _buildCollagePoster('assets/images/war_1917.jpg'),
+                      ],
+                    ),
+                    const SizedBox(width: 14),
+
+                    // Column 2 (Offset)
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 70),
+                        _buildCollagePoster('assets/images/bad_boys.jpg'),
+                        const SizedBox(height: 14),
+                        _buildCollagePoster('assets/images/avengers.jpg'),
+                        const SizedBox(height: 14),
+                        _buildCollagePoster('assets/images/interstellar.jpg'),
+                      ],
+                    ),
+                    const SizedBox(width: 14),
+
+                    // Column 3
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 10),
+                        _buildCollagePoster('assets/images/deadpool.jpg'),
+                        const SizedBox(height: 14),
+                        _buildCollagePoster('assets/images/doctor_strange.jpg'),
+                        const SizedBox(height: 14),
+                        _buildCollagePoster('assets/images/cars.jpg'),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
           ),
+        ),
+
+        // Smooth Vertical Fade to Dark (#121312)
+        Positioned.fill(
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.0, 0.35, 0.65, 0.88, 1.0],
+                colors: [
+                  Color(0x33000000),
+                  Color(0x22121312),
+                  Color(0xBB121312),
+                  Color(0xFF121312),
+                  Color(0xFF121312),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCollagePoster(String assetPath) {
+    return Container(
+      width: 135,
+      height: 195,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
+      clipBehavior: Clip.antiAlias,
+      child: Image.asset(
+        assetPath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: const Color(0xFF1E1E28),
+            child: const Icon(Icons.movie_outlined, color: Colors.white30, size: 28),
+          );
+        },
+      ),
+    );
+  }
+
+  /// Screens 2-6 Background: Full-Bleed Movie Poster with Gradient Overlay
+  Widget _buildSinglePosterBackground(BuildContext context, OnboardingPageModel model) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Poster Image
+        if (model.posterAsset != null)
+          Image.asset(
+            model.posterAsset!,
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(color: const Color(0xFF161616));
+            },
+          )
+        else
+          Container(color: const Color(0xFF161616)),
+
+        // Top Subtle Gradient for Status Bar
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 120,
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0x88000000),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Dark Vignette / Bottom Fade behind the Card Overlay
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 350,
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Color(0x66121312),
+                  Color(0xDD121312),
+                  Color(0xFF121312),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

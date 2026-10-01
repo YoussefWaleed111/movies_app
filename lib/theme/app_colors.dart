@@ -11,15 +11,21 @@ class AppColors {
   static const Color placeholderDark = Color(0xFF22222A);
   static const Color placeholderBorder = Color(0xFF383845);
 
-  // Accents & Highlights (Figma Spec: #FFA90A / #FFC107)
-  static const Color primaryYellow = Color(0xFFFFA90A);
-  static const Color primaryGold = Color(0xFFFFC107);
+  // Figma Exact Colors
+  static const Color figmaBackground = Color(0xFF121312);
+  static const Color figmaYellow = Color(0xFFF6BD00);
+  static const Color figmaInputBackground = Color(0xFF282A28);
+  static const Color figmaHint = Color(0xFFA6A6A6);
+
+  // Accents & Highlights (Figma Spec: #F6BD00 / #FFA90A)
+  static const Color primaryYellow = Color(0xFFF6BD00);
+  static const Color primaryGold = Color(0xFFF6BD00);
   static const Color primaryYellowHover = Color(0xFFFFB733);
   static const Color accentRed = Color(0xFFE50914);
   static const Color accentBlue = Color(0xFF1E88E5);
   static const Color accentPurple = Color(0xFF8E24AA);
 
-  // Gradients for Specific Movie Themes (Figma Specs: Avengers, Oppenheimer, Bad Boys, Doctor Strange, 1917)
+  // Gradients for Specific Movie Themes
   static const Gradient avengersGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
@@ -53,7 +59,7 @@ class AppColors {
   static const Gradient authBackgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF1A1A26), Color(0xFF121212)],
+    colors: [Color(0xFF121312), Color(0xFF121312)],
   );
 
   static const Gradient heroPosterOverlay = LinearGradient(

@@ -7,24 +7,34 @@ class CustomOutlinedButton extends StatelessWidget {
   final VoidCallback onPressed;
   final double height;
   final IconData? icon;
+  final Color? borderColor;
+  final Color? textColor;
+  final Color? backgroundColor;
 
   const CustomOutlinedButton({
     super.key,
     required this.text,
     required this.onPressed,
-    this.height = 50.0,
+    this.height = 54.0,
     this.icon,
+    this.borderColor,
+    this.textColor,
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveBorderColor = borderColor ?? AppColors.figmaYellow;
+    final effectiveTextColor = textColor ?? AppColors.figmaYellow;
+    final effectiveBgColor = backgroundColor ?? Colors.transparent;
+
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
-        backgroundColor: AppColors.cardBackground.withValues(alpha: 0.6),
+        foregroundColor: effectiveTextColor,
+        backgroundColor: effectiveBgColor,
         minimumSize: Size.fromHeight(height),
-        side: const BorderSide(color: AppColors.placeholderBorder, width: 1.2),
+        side: BorderSide(color: effectiveBorderColor, width: 1.5),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -33,15 +43,15 @@ class CustomOutlinedButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 18, color: AppColors.textPrimary),
+            Icon(icon, size: 18, color: effectiveTextColor),
             const SizedBox(width: 8),
           ],
           Text(
             text,
             style: AppTypography.button.copyWith(
-              color: AppColors.textPrimary,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+              color: effectiveTextColor,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

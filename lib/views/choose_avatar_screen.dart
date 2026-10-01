@@ -111,7 +111,7 @@ class _ChooseAvatarScreenState extends State<ChooseAvatarScreen> {
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: AppColors.primaryGold.withOpacity(0.3),
+                                    color: AppColors.primaryGold.withValues(alpha: 0.3),
                                     blurRadius: 10,
                                     spreadRadius: 2,
                                   )

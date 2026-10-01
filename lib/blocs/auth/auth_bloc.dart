@@ -35,7 +35,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await authRepository.login(event.email, event.password);
       emit(Authenticated(user));
     } catch (e) {
-      emit(const AuthError('Invalid credentials. Please try again.'));
+      final message = e.toString().replaceFirst('Exception: ', '');
+      emit(AuthError(message));
     }
   }
 

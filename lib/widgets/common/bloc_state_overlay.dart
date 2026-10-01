@@ -165,7 +165,7 @@ class _BlocStateOverlayState extends State<BlocStateOverlay> {
                       decoration: BoxDecoration(
                         color: AppColors.background,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.primaryGold.withOpacity(0.5), width: 2),
+                        border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.5), width: 2),
                         boxShadow: const [
                           BoxShadow(color: Colors.black54, blurRadius: 20, spreadRadius: 4),
                         ],

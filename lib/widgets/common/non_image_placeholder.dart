@@ -91,7 +91,7 @@ class NonImagePlaceholder extends StatelessWidget {
         // Diagonal watermark cross / grid pattern lines for wireframe feel
         CustomPaint(
           size: Size(width ?? double.infinity, height ?? double.infinity),
-          painter: _PlaceholderGridPainter(color: AppColors.placeholderBorder.withOpacity(0.3)),
+          painter: _PlaceholderGridPainter(color: AppColors.placeholderBorder.withValues(alpha: 0.3)),
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_typography.dart';
-import '../widgets/common/non_image_placeholder.dart';
 import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_event.dart';
 import '../blocs/auth/auth_bloc.dart';
 import '../blocs/auth/auth_event.dart';
 import '../blocs/auth/auth_state.dart';
+import '../widgets/auth/route_logo.dart';
+import '../widgets/auth/custom_auth_text_field.dart';
+import '../widgets/auth/language_toggle.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,196 +18,267 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController(text: 'alex.johnson@cinemabloc.com');
-  final TextEditingController _passwordController = TextEditingController(text: 'password123');
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _onLogin() {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter email and password.'),
+          backgroundColor: AppColors.errorRed,
+        ),
+      );
+      return;
+    }
+
     context.read<AuthBloc>().add(AuthLoginRequested(
-          email: _emailController.text,
-          password: _passwordController.text,
+          email: email,
+          password: password,
         ));
-    context.read<NavigationBloc>().add(const NavigateToRoute(AppViewRoute.mainShell));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.authBackgroundGradient,
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Stylized Non-Image Abstract Wireframe Header Element
-                  const Center(
-                    child: NonImagePlaceholder(
-                      type: PlaceholderType.logo,
-                      label: 'AUTH APPARATUS',
-                      width: 90,
-                      height: 90,
-                      borderRadius: 20,
-                      accentColor: AppColors.primaryGold,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+      backgroundColor: AppColors.figmaBackground,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 10),
 
-                  // Header Texts
-                  Text(
-                    'Welcome Back',
-                    textAlign: TextAlign.center,
-                    style: AppTypography.displayLarge,
+                // Top Yellow Route Logo
+                const Center(
+                  child: RouteLogo(
+                    width: 130,
+                    height: 110,
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Sign in to your BLoC movie universe',
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodyMedium,
-                  ),
-                  const SizedBox(height: 36),
+                ),
+                const SizedBox(height: 48),
 
-                  // Email Input Field
-                  TextField(
-                    controller: _emailController,
-                    style: AppTypography.bodyLarge,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email Address',
-                      prefixIcon: Icon(Icons.email_outlined, color: AppColors.primaryGold),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                // Email Input Field
+                CustomAuthTextField(
+                  controller: _emailController,
+                  hintText: 'Email',
+                  prefixIcon: Icons.email,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 18),
 
-                  // Password Input Field
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    style: AppTypography.bodyLarge,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: Icon(Icons.lock_outline, color: AppColors.primaryGold),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                // Password Input Field
+                CustomAuthTextField(
+                  controller: _passwordController,
+                  hintText: 'Password',
+                  prefixIcon: Icons.lock,
+                  isPassword: true,
+                ),
+                const SizedBox(height: 14),
 
-                  // Forgot Password Link
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        context.read<NavigationBloc>().add(const NavigateToRoute(AppViewRoute.forgetPassword));
-                      },
-                      child: Text(
-                        'Forgot Password?',
-                        style: AppTypography.labelSmall.copyWith(color: AppColors.primaryGold),
+                // Forget Password Link
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () {
+                      context.read<NavigationBloc>().add(const NavigateToRoute(AppViewRoute.forgetPassword));
+                    },
+                    child: const Text(
+                      'Forget Password ?',
+                      style: TextStyle(
+                        color: AppColors.figmaYellow,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                ),
+                const SizedBox(height: 28),
 
-                  // Yellow Login Button
-                  BlocConsumer<AuthBloc, AuthState>(
-                    listener: (context, state) {
-                      if (state is Authenticated) {
-                        context.read<NavigationBloc>().add(const NavigateToRoute(AppViewRoute.mainShell));
-                      }
-                    },
-                    builder: (context, state) {
-                      if (state is AuthLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(color: AppColors.primaryGold),
-                        );
-                      }
-                      return ElevatedButton(
+                // Yellow Login Button
+                BlocConsumer<AuthBloc, AuthState>(
+                  listener: (context, state) {
+                    if (state is Authenticated) {
+                      context.read<NavigationBloc>().add(const NavigateToRoute(AppViewRoute.mainShell));
+                    } else if (state is AuthError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.message),
+                          backgroundColor: AppColors.errorRed,
+                        ),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is AuthLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: AppColors.figmaYellow),
+                      );
+                    }
+                    return SizedBox(
+                      height: 52,
+                      child: ElevatedButton(
                         onPressed: _onLogin,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryGold,
-                          minimumSize: const Size.fromHeight(50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          backgroundColor: AppColors.figmaYellow,
+                          foregroundColor: Colors.black,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
                         ),
-                        child: const Text('Login', style: AppTypography.button),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Social Login Section with Non-Image Placeholder Icon
-                  Row(
-                    children: [
-                      const Expanded(child: Divider(color: AppColors.placeholderBorder)),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: Text('OR SIGN IN WITH', style: AppTypography.labelSmall),
-                      ),
-                      const Expanded(child: Divider(color: AppColors.placeholderBorder)),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Social Login Placeholder Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSocialIconPlaceholder('G (Google)'),
-                      const SizedBox(width: 16),
-                      _buildSocialIconPlaceholder('Apple'),
-                    ],
-                  ),
-                  const SizedBox(height: 36),
-
-                  // Register Link Text
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Don't have an account? ", style: AppTypography.bodyMedium),
-                      GestureDetector(
-                        onTap: () {
-                          context.read<NavigationBloc>().add(const NavigateToRoute(AppViewRoute.register));
-                        },
-                        child: Text(
-                          'Register Now',
-                          style: AppTypography.bodyLarge.copyWith(
-                            color: AppColors.primaryGold,
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Color(0xFF121312),
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                    ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 18),
+
+                // "Don't Have Account ? Create One" Text Link
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      context.read<NavigationBloc>().add(const NavigateToRoute(AppViewRoute.register));
+                    },
+                    child: RichText(
+                      text: const TextSpan(
+                        text: "Don't Have Account ? ",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: 'Create One',
+                            style: TextStyle(
+                              color: AppColors.figmaYellow,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 26),
+
+                // Yellow "OR" Divider
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1.2,
+                        color: AppColors.figmaYellow,
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 14.0),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(
+                          color: AppColors.figmaYellow,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 1.2,
+                        color: AppColors.figmaYellow,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 26),
+
+                // "Login With Google" Button
+                SizedBox(
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Google social login placeholder
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Google Sign-In will be available with Firebase Auth.'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.figmaYellow,
+                      foregroundColor: Colors.black,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Stylized Google 'G' icon badge
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
+                            color: Colors.black,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'G',
+                            style: TextStyle(
+                              color: AppColors.figmaYellow,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Login With Google',
+                          style: TextStyle(
+                            color: Color(0xFF121312),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 36),
+
+                // Language Switcher Toggle at the Bottom
+                const Center(
+                  child: LanguageToggle(),
+                ),
+                const SizedBox(height: 12),
+              ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSocialIconPlaceholder(String label) {
-    return Container(
-      width: 120,
-      height: 46,
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.placeholderBorder),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.g_mobiledata_rounded, color: AppColors.textPrimary, size: 24),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: AppTypography.labelSmall.copyWith(color: AppColors.textPrimary),
-          ),
-        ],
       ),
     );
   }
